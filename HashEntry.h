@@ -1,18 +1,12 @@
 class HashEntry {
 private:
       int key;
-      int value;
 public:
-    HashEntry(int key, int value) {
+    HashEntry(int key) {
         this->key = key;
-        this->value = value;
     }
 
     int getKey() {
         return key;
-    }
-
-    int getValue() {
-        return value;
     }
 };

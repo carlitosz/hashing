@@ -1,42 +1,78 @@
-const int TABLE_SIZE = 128;
+#include <iostream>
+using namespace std;
+
 
 #include "HashEntry.h"
 
 class HashMap {
 private:
       HashEntry **table;
+      int tableSize;
+      int collisions;
+      int numElems;
 
 public:
-    HashMap() {
-        table = new HashEntry*[TABLE_SIZE];
-        for (int i = 0; i < TABLE_SIZE; i++) table[i] = NULL;
+    // Overloaded constructor
+    HashMap(int s) {
+        tableSize = s;
+        collisions = 0;
+        numElems = 0;
+
+        table = new HashEntry * [s];
+        for (int i = 0; i < tableSize; i++) table[i] = 0;
     }
 
-    int get(int key) {
-        int hash = (key % TABLE_SIZE);
+    // Default constructor
+    HashMap() {
+        tableSize = 128;
+        collisions = 0;
+        numElems = 0;
 
-        while (table[hash] != NULL && table[hash]->getKey() != key) {
-            hash = (hash + 1) % TABLE_SIZE;
+        table = new HashEntry * [tableSize];
+        for (int i = 0; i < tableSize; i++) table[i] = 0;
+    }
+
+    // Put key into hash table
+    void put(int key, int index) {
+        int hash = generateHash(key);
+
+        if (table[hash] == 0) {
+            table[hash] = new HashEntry(key);
+            numElems++;
+
+            return;
         }
 
-        if (table[hash] == NULL) return -1;
-        else return table[hash]->getValue();
-      }
+        if (table[hash]->getKey() > 0) {
+            if (collisions == 0) {
+                cout << "First collision detected on insertion "
+                     << index << endl;
+            }
 
-    void put(int key, int value) {
-        int hash = (key % TABLE_SIZE);
-        while (table[hash] != NULL && table[hash]->getKey() != key) {
-            hash = (hash + 1) % TABLE_SIZE;
+            collisions++;
         }
+    }
 
-        if (table[hash] != NULL) delete table[hash];
-        
-        table[hash] = new HashEntry(key, value);
-      }     
+    int getCollisions() {
+        return collisions;
+    }
 
+    // Returns number of current entries
+    int getNumEntries() {
+        return numElems;
+    }
+
+    // Generates the new hash
+    int generateHash(int key) {
+        return key % tableSize;
+    }
+
+    // Destructor
     ~HashMap() {
-        for (int i = 0; i < TABLE_SIZE; i++) {
-            if (table[i] != NULL)
+        cout << endl;
+        cout << "============= Cleaning up . . . =================" << endl;
+        for (int i = 0; i < tableSize; i++) {
+            if (table[i] != 0)
                 delete table[i];
         }
 
